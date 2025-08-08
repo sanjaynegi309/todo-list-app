@@ -36,6 +36,24 @@ The application allows users to create, view, update, and delete tasks. The arch
     - The **Backend API** will be available at [http://localhost:8000](http://localhost:8000).
     - The interactive API documentation (Swagger UI) can be accessed at [http://localhost:8000/docs](http://localhost:8000/docs).
 
+## Running Tests Locally
+
+This project includes automated tests for both the backend and frontend.
+
+### Backend Tests (Pytest)
+
+1.  **Navigate to the backend directory:** `cd backend`
+2.  **Install dependencies into a virtual environment:** `pip install -r requirements.txt`
+3.  **Run tests:** `pytest`
+
+### Frontend Tests (Jest)
+
+1.  **Navigate to the frontend directory:** `cd frontend`
+2.  **Install dependencies:** `npm install`
+3.  **Run tests:** `npm test`
+
+For more details on testing, see the `TESTING.md` file.
+
 ## Project Structure
 
 ```
@@ -55,23 +73,47 @@ The application allows users to create, view, update, and delete tasks. The arch
 └── README.md           # This file
 ```
 
-## CI/CD Pipeline
+## Deployment to GCP with CI/CD
 
-This project includes a complete CI/CD pipeline using GitHub Actions to automatically test, build, and deploy the application to Google Cloud Run. The workflow is defined in `.github/workflows/deploy.yml`.
+This project is configured for continuous deployment to Google Cloud Run using a GitHub Actions workflow defined in `.github/workflows/deploy.yml`.
 
-### Workflow Steps
+### How It Works
+
+The pipeline automates all the steps required to get your code from a Git push to a live application:
 
 1.  **Trigger**: The workflow runs automatically on every push to the `main` branch.
-2.  **Test**: It runs the backend (`pytest`) and frontend (`npm test`) tests in parallel.
-3.  **Build & Push**: If the tests pass, it builds Docker images for the backend and frontend, tags them with the commit SHA, and pushes them to Google Container Registry (GCR).
-4.  **Deploy**: It uses Terraform to provision two Google Cloud Run services and deploys the new images.
+2.  **Test**: It runs the backend and frontend tests to ensure code quality.
+3.  **Build**: It builds new Docker images for the backend and frontend.
+4.  **Push**: It pushes the new images to Google Container Registry (GCR).
+5.  **Deploy**: It uses Terraform to apply the infrastructure configuration, deploying the new images to the Google Cloud Run services.
 
-### Required GitHub Secrets
+### How to Deploy
 
-To use this workflow, you must configure the following secrets in your GitHub repository's settings (`Settings > Secrets and variables > Actions`):
+Deployment is automatic. To deploy a new version of the application, simply **push your changes to the `main` branch**:
 
--   `GCP_PROJECT_ID`: Your Google Cloud project ID.
--   `GCP_SA_KEY`: The JSON key for a GCP Service Account. This service account should have the following roles:
-    -   `Cloud Run Admin` (roles/run.admin)
-    -   `Storage Admin` (roles/storage.admin) - for pushing to GCR
-    -   `Service Account User` (roles/iam.serviceAccountUser)
+```sh
+git push origin main
+```
+
+You can monitor the progress of the deployment in the "Actions" tab of your GitHub repository.
+
+### Setup for Deployment
+
+Before the workflow can run successfully, you need to perform a one-time setup:
+
+1.  **Create a GCP Project**: If you don't have one already, create a project in the [Google Cloud Console](https://console.cloud.google.com/).
+
+2.  **Enable APIs**: Ensure the **Cloud Run API**, **Container Registry API**, and **IAM API** are enabled for your project. The Terraform script will also attempt to enable them.
+
+3.  **Create a Service Account**: Create a GCP Service Account that the GitHub workflow will use to authenticate.
+
+4.  **Grant Permissions**: Grant the following IAM roles to your new Service Account:
+    -   `Cloud Run Admin` (`roles/run.admin`)
+    -   `Storage Admin` (`roles/storage.admin`)
+    -   `Service Account User` (`roles/iam.serviceAccountUser`)
+
+5.  **Create a Service Account Key**: Generate a JSON key for the Service Account and download it.
+
+6.  **Configure GitHub Secrets**: In your GitHub repository, go to `Settings > Secrets and variables > Actions` and add the following secrets:
+    -   `GCP_PROJECT_ID`: Your Google Cloud project ID.
+    -   `GCP_SA_KEY`: The full content of the JSON key file you downloaded in the previous step.
