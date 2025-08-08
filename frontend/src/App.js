@@ -1,37 +1,91 @@
 import React, { useState, useEffect } from 'react';
+import { apiService } from './services/api';
+// The following components will be created in the next steps.
+import TaskList from './components/TaskList';
+import AddTaskForm from './components/AddTaskForm';
 
+/**
+ * The main application component.
+ * It manages the state of the tasks and handles all data operations.
+ */
 function App() {
   const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Placeholder for fetching tasks
+  // Fetch tasks from the API when the component mounts
   useEffect(() => {
-    // In a real app, you'd fetch from your API here
-    // e.g., fetch('/api/v1/tasks').then(res => res.json()).then(data => setTasks(data));
-    const mockTasks = [
-      { id: 1, title: 'Set up project structure', is_completed: true },
-      { id: 2, title: 'Build the frontend', is_completed: false },
-      { id: 3, title: 'Connect to backend API', is_completed: false },
-    ];
-    setTasks(mockTasks);
+    fetchTasks();
   }, []);
+
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const response = await apiService.getTasks();
+      setTasks(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch tasks. Please try again later.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handler to add a new task
+  const handleAddTask = async (title) => {
+    try {
+      const newTaskData = { title, is_completed: false };
+      const response = await apiService.createTask(newTaskData);
+      setTasks([...tasks, response.data]);
+    } catch (err) {
+      setError('Failed to add task.');
+      console.error(err);
+    }
+  };
+
+  // Handler to toggle the completion status of a task
+  const handleToggleComplete = async (id, is_completed) => {
+    try {
+      const updatedTask = await apiService.updateTask(id, { is_completed: !is_completed });
+      setTasks(tasks.map(task => (task.id === id ? updatedTask.data : task)));
+    } catch (err) {
+      setError('Failed to update task.');
+      console.error(err);
+    }
+  };
+
+  // Handler to delete a task
+  const handleDeleteTask = async (id) => {
+    try {
+      await apiService.deleteTask(id);
+      setTasks(tasks.filter(task => task.id !== id));
+    } catch (err) {
+      setError('Failed to delete task.');
+      console.error(err);
+    }
+  };
 
   return (
     <div className="App">
       <header>
         <h1>To-Do List</h1>
+        <p>Built with React & FastAPI</p>
       </header>
-      <div>
-        {/* Placeholder for adding a new task */}
-        <input type="text" placeholder="Add a new task..." />
-        <button>Add</button>
-      </div>
-      <ul>
-        {tasks.map(task => (
-          <li key={task.id} style={{ textDecoration: task.is_completed ? 'line-through' : 'none' }}>
-            {task.title}
-          </li>
-        ))}
-      </ul>
+      <main>
+        <AddTaskForm onAddTask={handleAddTask} />
+
+        {error && <p className="error">{error}</p>}
+        {loading ? (
+          <p>Loading tasks...</p>
+        ) : (
+          <TaskList
+            tasks={tasks}
+            onToggleComplete={handleToggleComplete}
+            onDeleteTask={handleDeleteTask}
+          />
+        )}
+      </main>
     </div>
   );
 }

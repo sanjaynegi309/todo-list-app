@@ -1,3 +1,4 @@
+/* General Body Styles */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -10,16 +11,128 @@ body {
   padding: 2rem;
 }
 
-#root {
+/* Main App Container */
+.App {
   max-width: 600px;
   margin: 0 auto;
   background: #fff;
   padding: 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Header */
+.App header {
+  text-align: center;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+}
+
+.App header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  color: #2c3e50;
+}
+
+.App header p {
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
+  color: #7f8c8d;
+}
+
+/* Add Task Form */
+.add-task-form {
+  display: flex;
+  margin-bottom: 2rem;
+}
+
+.task-input {
+  flex-grow: 1;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.task-input:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+.add-button {
+  padding: 0.75rem 1.5rem;
+  margin-left: 0.5rem;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+
+.add-button:hover {
+  background-color: #357abd;
+}
+
+/* Task List */
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.task-item:last-child {
+  border-bottom: none;
+}
+
+.task-item .task-info {
+  display: flex;
+  align-items: center;
+}
+
+.task-item input[type="checkbox"] {
+  margin-right: 1rem;
+  cursor: pointer;
+}
+
+.task-item.completed span {
+  text-decoration: line-through;
+  color: #95a5a6;
+}
+
+.delete-button {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.delete-button:hover {
+  color: #c0392b;
+}
+
+/* Utility Classes */
+.error {
+  color: #e74c3c;
+  text-align: center;
+}
+
+.no-tasks-message {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 2rem 0;
 }
