@@ -49,6 +49,29 @@ The application allows users to create, view, update, and delete tasks. The arch
 │   ├── src/            # React application code
 │   ├── Dockerfile      # Dockerfile for the frontend
 │   └── package.json
-├── docker-compose.yml  # Orchestrates the services
+├── terraform/          # Terraform configuration for GCP
+├── .github/workflows/  # GitHub Actions workflows
+├── docker-compose.yml  # Orchestrates services for local development
 └── README.md           # This file
 ```
+
+## CI/CD Pipeline
+
+This project includes a complete CI/CD pipeline using GitHub Actions to automatically test, build, and deploy the application to Google Cloud Run. The workflow is defined in `.github/workflows/deploy.yml`.
+
+### Workflow Steps
+
+1.  **Trigger**: The workflow runs automatically on every push to the `main` branch.
+2.  **Test**: It runs the backend (`pytest`) and frontend (`npm test`) tests in parallel.
+3.  **Build & Push**: If the tests pass, it builds Docker images for the backend and frontend, tags them with the commit SHA, and pushes them to Google Container Registry (GCR).
+4.  **Deploy**: It uses Terraform to provision two Google Cloud Run services and deploys the new images.
+
+### Required GitHub Secrets
+
+To use this workflow, you must configure the following secrets in your GitHub repository's settings (`Settings > Secrets and variables > Actions`):
+
+-   `GCP_PROJECT_ID`: Your Google Cloud project ID.
+-   `GCP_SA_KEY`: The JSON key for a GCP Service Account. This service account should have the following roles:
+    -   `Cloud Run Admin` (roles/run.admin)
+    -   `Storage Admin` (roles/storage.admin) - for pushing to GCR
+    -   `Service Account User` (roles/iam.serviceAccountUser)
